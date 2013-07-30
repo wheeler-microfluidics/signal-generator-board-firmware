@@ -26,7 +26,10 @@ public:
   static const uint8_t CMD_SET_WAVEFORM_VOLTAGE =           0xA8;
   static const uint8_t CMD_GET_WAVEFORM_FREQUENCY =         0xA9;
   static const uint8_t CMD_SET_WAVEFORM_FREQUENCY =         0xAA;
-
+  static const uint8_t CMD_GET_POT_INDEX =                  0xB7;
+  static const uint8_t CMD_SET_POT_INDEX =                  0xB8;
+  static const uint8_t CMD_MEASURE_VOUT_PK_PK =             0xB9;
+  
   // reserved return codes
   static const uint8_t RETURN_OK =                    0x00;
   static const uint8_t RETURN_GENERAL_ERROR =         0x01;
@@ -54,18 +57,20 @@ public:
 
   void begin();
   // local accessors
-  const char* protocol_name() { return PROTOCOL_NAME_; }
-  const char* protocol_version() { return PROTOCOL_VERSION_; }
-  const char* name() { return NAME_; } //device name
-  const char* manufacturer() { return MANUFACTURER_; }
-  const char* software_version() { return SOFTWARE_VERSION_; }
-  const char* hardware_version() { return HARDWARE_VERSION_; }
-  const char* url() { return URL_; }
+  const char* name() { return prog_string(NAME_); }
+  const char* hardware_version() { return prog_string(HARDWARE_VERSION_); }
+  const char* url() { return prog_string(URL_); }
+  const char* software_version() { return prog_string(SOFTWARE_VERSION_); }
+  const char* protocol_name() { return prog_string(PROTOCOL_NAME_); }
+  const char* protocol_version() { return prog_string(PROTOCOL_VERSION_); }
+  const char* manufacturer() { return prog_string(MANUFACTURER_); }
+  const char* prog_string(prog_char* str) { strcpy_P(buffer_, str); return buffer_; }
 
   void Listen();
-  void set_pot(byte address, byte level);
+  void set_pot(byte address, byte level, boolean display_msg=true);
   void set_waveform_frequency(float freq);
   void set_waveform_voltage(float vrms);
+  void set_i2c_address(uint8_t address);
   float vout_pk_pk();
   version_t ConfigVersion();
   void ProcessWireCommand();
@@ -94,13 +99,13 @@ private:
   void LoadConfig(bool use_defaults=false);
   void SaveConfig();
 
-  static const char SOFTWARE_VERSION_[];
-  static const char NAME_[];
-  static const char HARDWARE_VERSION_[];
-  static const char MANUFACTURER_[];
-  static const char URL_[];
-  static const char PROTOCOL_NAME_[];
-  static const char PROTOCOL_VERSION_[];
+  static prog_char SOFTWARE_VERSION_[] PROGMEM;
+  static prog_char NAME_[] PROGMEM;
+  static prog_char HARDWARE_VERSION_[] PROGMEM;
+  static prog_char MANUFACTURER_[] PROGMEM;
+  static prog_char URL_[] PROGMEM;
+  static prog_char PROTOCOL_NAME_[] PROGMEM;
+  static prog_char PROTOCOL_VERSION_[] PROGMEM;
   config_settings_t config_settings_;
   float waveform_frequency_;
   float waveform_voltage_;

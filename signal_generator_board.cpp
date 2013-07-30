@@ -4,22 +4,25 @@
 #include <math.h>
 #include <SPI.h>
 #include <Wire.h>
-//#include <avr/pgmspace.h>
+#include <Memory.h>
+
+#define P(str) (strcpy_P(p_buffer, PSTR(str)), p_buffer)
+char p_buffer[100];
 
 SignalGeneratorClass SignalGeneratorBoard;
 
 const float SignalGeneratorClass::LOG_F_STEP = (log10(SignalGeneratorClass::F_MAX)-log10(SignalGeneratorClass::F_MIN))/255;
 
-const char SignalGeneratorClass::PROTOCOL_NAME_[] = "Signal Generator Protocol";
-const char SignalGeneratorClass::PROTOCOL_VERSION_[] = "0.1";
-const char SignalGeneratorClass::NAME_[] = "Signal Generator Board";
-const char SignalGeneratorClass::MANUFACTURER_[] = "Wheeler Microfluidics Lab";
-const char SignalGeneratorClass::SOFTWARE_VERSION_[] = "0.1";
-const char SignalGeneratorClass::HARDWARE_VERSION_[] = "1.0";
-const char SignalGeneratorClass::URL_[] = "http://microfluidics.utoronto.ca/dropbot";
+prog_char SignalGeneratorClass::PROTOCOL_NAME_[] PROGMEM = "Signal Generator Protocol";
+prog_char SignalGeneratorClass::PROTOCOL_VERSION_[] PROGMEM = "0.1";
+prog_char SignalGeneratorClass::MANUFACTURER_[] PROGMEM = "Wheeler Microfluidics Lab";
+prog_char SignalGeneratorClass::NAME_[] PROGMEM = "Signal Generator Board";
+prog_char SignalGeneratorClass::HARDWARE_VERSION_[] PROGMEM = "1.0";
+prog_char SignalGeneratorClass::SOFTWARE_VERSION_[] PROGMEM = "0.1";
+prog_char SignalGeneratorClass::URL_[] PROGMEM = "http://microfluidics.utoronto.ca/dropbot";
 
 void HandleWireRequest() {
-  //Serial.println("HandleWireRequest");
+  //Serial.println(P("HandleWireRequest()"));
   if(SignalGeneratorBoard.send_payload_length_) {
     Wire.write((uint8_t*)&SignalGeneratorBoard.bytes_written_,
                sizeof(SignalGeneratorBoard.bytes_written_));
@@ -30,7 +33,7 @@ void HandleWireRequest() {
 }
 
 void HandleWireReceive(int n_bytes) {
-  //Serial.println("HandleWireReceive("  + String(n_bytes) + ")");
+  //Serial.println(P("HandleWireReceive()"));
   SignalGeneratorBoard.cmd_ = Wire.read();
   n_bytes--;
   if(n_bytes<=SignalGeneratorClass::MAX_PAYLOAD_LENGTH) {
@@ -55,6 +58,12 @@ void SignalGeneratorClass::begin() {
   Wire.onReceive(HandleWireReceive);
   waveform_frequency_ = 1000;
   waveform_voltage_ = 2.5;
+  Serial.print(P("ram=")); Serial.println(ram_size(), DEC);
+  Serial.print(P(".data=")); Serial.println(data_size(), DEC);
+  Serial.print(P(".bss=")); Serial.println(bss_size(), DEC);
+  Serial.print(P("heap=")); Serial.println(heap_size(), DEC);
+  Serial.print(P("stack=")); Serial.println(stack_size(), DEC);
+  Serial.print(P("free memory=")); Serial.println(free_memory(), DEC);
 }
 
 void SignalGeneratorClass::Listen() {
@@ -74,14 +83,20 @@ float SignalGeneratorClass::ReadFloat() {
   return *(float*)(buffer_+bytes_read_-sizeof(float));
 }
 
+uint8_t SignalGeneratorClass::ReadUint8() {
+  // TODO check that we're not reading past the end of the buffer
+  bytes_read_ += sizeof(uint8_t);
+  return *(uint8_t*)(buffer_+bytes_read_-sizeof(uint8_t));
+}
+
 void SignalGeneratorClass::DumpConfig() {
-  Serial.println(String(NAME_) + " v" + String(HARDWARE_VERSION_));
-  Serial.println("Firmware v" + String(SOFTWARE_VERSION_));
-  Serial.println(URL_);
-  Serial.println("config_version=" + VersionString(ConfigVersion()));
-  Serial.println("i2c_address=" + String(config_settings_.i2c_address, DEC));
+  Serial.println(String(name()) + " v" + String(hardware_version()));
+  Serial.println(P("Firmware v") + String(software_version()));
+  Serial.println(url());
+  Serial.println(P("config_version=") + VersionString(ConfigVersion()));
+  Serial.println(P("i2c_address=") + String(config_settings_.i2c_address, DEC));
   for(uint8_t i=0; i<6; i++) {
-    Serial.println("pot[" + String(i) + "]=" + String(config_settings_.pot[i], DEC));
+    Serial.println(P("pot[") + String(i) + "]=" + String(config_settings_.pot[i], DEC));
   }
 }
 
@@ -91,45 +106,42 @@ void SignalGeneratorClass::ProcessSerialInput() {
     buffer_[len]=0;
     char* substr;
 
-    if(strcmp(buffer_, "reset_config()")==0) {
+    if(strcmp(buffer_, P("reset_config()"))==0) {
       LoadConfig(true);
       DumpConfig();
       return;
     }
 
-    if(strcmp(buffer_, "config()")==0) {
+    if(strcmp(buffer_, P("config()"))==0) {
       DumpConfig();
       return;
     }
 
-    if(strcmp(buffer_, "i2c_address()")==0) {
-      Serial.println("i2c_address=" + String(config_settings_.i2c_address, DEC));
+    if(strcmp(buffer_, P("i2c_address()"))==0) {
+      Serial.println(P("i2c_address=") + String(config_settings_.i2c_address, DEC));
       return;
     }
 
-    substr = strstr(buffer_, "set_i2c_address(");
+    substr = strstr(buffer_, P("set_i2c_address("));
     if(substr && substr==buffer_ && substr[strlen(substr)-1] == ')') {
       buffer_[strlen(substr)-1]=0;
-      config_settings_.i2c_address = atoi(substr+sizeof("set_i2c_address(")-1);
-      Wire.begin(config_settings_.i2c_address);
-      Serial.println("i2c_address=" + String(config_settings_.i2c_address, DEC));
-      SaveConfig();
+      set_i2c_address(atoi(substr+sizeof(P("set_i2c_address("))-1));
       return;
     }
 
-    substr = strstr(buffer_, "pot(");
+    substr = strstr(buffer_, P("pot("));
     if(substr && substr==buffer_ && substr[strlen(substr)-1] == ')') {
       substr = strstr(buffer_, "(") + 1;
       int32_t index;
       if(NextInt(substr, index)) {
         if(index>=0 && index<6) {
-          Serial.println("pot[" + String(index) + "]=" + String(config_settings_.pot[index], DEC));
+          Serial.println(P("pot[") + String(index) + "]=" + String(config_settings_.pot[index], DEC));
           return;
         }
       }
     }
 
-    substr = strstr(buffer_, "set_pot(");
+    substr = strstr(buffer_, P("set_pot("));
     if(substr && substr==buffer_ && substr[strlen(substr)-1] == ')') {
       substr = strstr(buffer_, "(") + 1;
       int32_t index;
@@ -143,10 +155,7 @@ void SignalGeneratorClass::ProcessSerialInput() {
         return;
       }
       if(index>=0 && index<6 && value>=0 & value < 256) {
-        config_settings_.pot[index] = (uint8_t)value;
-        SaveConfig();
         set_pot((uint8_t)index, (uint8_t)value);
-        Serial.println("pot[" + String(index) + "]=" + String(config_settings_.pot[index], DEC));
         return;
       } else {
         Error(1);
@@ -154,40 +163,38 @@ void SignalGeneratorClass::ProcessSerialInput() {
       }
     }
     
-    if(strcmp(buffer_, "waveform_frequency()")==0) {
-      Serial.print("waveform_frequency=");
+    if(strcmp(buffer_, P("waveform_frequency()"))==0) {
+      Serial.print(P("waveform_frequency="));
       Serial.println(waveform_frequency_);
       return;
     }
 
-    substr = strstr(buffer_, "set_waveform_frequency(");
+    substr = strstr(buffer_, P("set_waveform_frequency("));
     if(substr && substr==buffer_ && substr[strlen(substr)-1] == ')') {
       buffer_[strlen(substr)-1]=0;
-      set_waveform_frequency(atof(substr+sizeof("set_waveform_frequency(")-1));
+      set_waveform_frequency(atof(substr+sizeof(P("set_waveform_frequency("))-1));
       return;
     }
 
-    if(strcmp(buffer_, "waveform_voltage()")==0) {
-      Serial.print("waveform_voltage=");
+    if(strcmp(buffer_, P("waveform_voltage()"))==0) {
+      Serial.print(P("waveform_voltage="));
       Serial.println(waveform_voltage_);
       return;
     }
 
-    substr = strstr(buffer_, "set_waveform_voltage(");
+    substr = strstr(buffer_, P("set_waveform_voltage("));
     if(substr && substr==buffer_ && substr[strlen(substr)-1] == ')') {
       buffer_[strlen(substr)-1]=0;
-      waveform_voltage_ = atof(substr+sizeof("set_waveform_voltage(")-1);
-      Serial.print("waveform_voltage=");
+      waveform_voltage_ = atof(substr+sizeof(P("set_waveform_voltage("))-1);
+      Serial.print(P("waveform_voltage="));
       Serial.println(waveform_voltage_);
       return;
     }
 
-    if(strcmp(buffer_, "vout_pk_pk()")==0) {
-      Serial.print("vout_pk_pk()=");
-      Serial.println(vout_pk_pk());
+    if(strcmp(buffer_, P("vout_pk_pk()"))==0) {
+      vout_pk_pk();
       return;
     }
-
     Error(1);
   }
 }
@@ -214,6 +221,24 @@ void SignalGeneratorClass::ProcessWireCommand() {
     set_waveform_voltage(ReadFloat());
     return_code_ = RETURN_OK;
     break;
+  case CMD_GET_POT_INDEX: {
+    uint8_t index = ReadUint8();
+    Serialize(&config_settings_.pot[index], sizeof(config_settings_.pot[index]));
+    return_code_ = RETURN_OK;
+    break;
+  }
+  case CMD_SET_POT_INDEX: {
+    uint8_t index = ReadUint8();
+    uint8_t value = ReadUint8();
+    set_pot(index, value);
+    return_code_ = RETURN_OK;
+    break;
+  }
+  case CMD_MEASURE_VOUT_PK_PK: {
+    float v = vout_pk_pk();
+    Serialize(&v, sizeof(v));
+    return_code_ = RETURN_OK;
+  }
   default:
     break;
   }
@@ -221,7 +246,7 @@ void SignalGeneratorClass::ProcessWireCommand() {
 }
 
 void SignalGeneratorClass::Error(uint8_t code) {
-  Serial.println("Error " + String(code, DEC));
+  Serial.println(P("Error ") + String(code, DEC));
 }
 
 boolean SignalGeneratorClass::NextInt(char* &str, int32_t &value) {
@@ -262,7 +287,7 @@ void SignalGeneratorClass::LoadConfig(bool use_defaults) {
     config_settings_.version.major=0;
     config_settings_.version.minor=0;
     config_settings_.version.micro=0;
-    config_settings_.i2c_address = 0;
+    config_settings_.i2c_address = 10;
     config_settings_.pot[0] = 128;
     config_settings_.pot[1] = 128;
     config_settings_.pot[2] = 128;
@@ -273,7 +298,7 @@ void SignalGeneratorClass::LoadConfig(bool use_defaults) {
   }
   Wire.begin(config_settings_.i2c_address);
   for(uint8_t i=0; i<6; i++) {
-    set_pot(i, config_settings_.pot[i]);
+    set_pot(i, config_settings_.pot[i], false);
   }
 }
 
@@ -282,28 +307,32 @@ void SignalGeneratorClass::SaveConfig() {
 }
 
 
-void SignalGeneratorClass::set_pot(byte address, byte level) {
+void SignalGeneratorClass::set_pot(byte index, byte value, boolean display_msg) {
   // take the SS pin low to select the chip:
   digitalWrite(AD5206_SS_PIN, LOW);
-  //  send in the address and value via SPI:
-  SPI.transfer(address);
-  SPI.transfer(level);
+  SPI.transfer(index);
+  SPI.transfer(value);
   // take the SS pin high to de-select the chip:
   digitalWrite(AD5206_SS_PIN, HIGH);
+  config_settings_.pot[index] = (uint8_t)value;
+  SaveConfig();
+  if(display_msg) {
+    Serial.println(P("pot[") + String(index) + "]=" + String(config_settings_.pot[index], DEC));
+  }
 }
 
 
 void SignalGeneratorClass::set_waveform_voltage(float vrms) {
   waveform_voltage_ = vrms;
-  Serial.print("waveform_voltage=");
+  Serial.print(P("waveform_voltage="));
   Serial.println(waveform_voltage_);
 }
 
 void SignalGeneratorClass::set_waveform_frequency(float freq) {
   waveform_frequency_ = freq;
-  Serial.print("waveform_frequency=");
+  Serial.print(P("waveform_frequency="));
   Serial.println(waveform_frequency_);
-  
+
   float scaling = 32;
   
   // frequency=2^oct*2078/(2-dac/1024)
@@ -346,6 +375,13 @@ void SignalGeneratorClass::set_waveform_frequency(float freq) {
   
 }
 
+void SignalGeneratorClass::set_i2c_address(uint8_t address) {
+  config_settings_.i2c_address = address;
+  Wire.begin(config_settings_.i2c_address);
+  Serial.println(P("i2c_address=") + String(config_settings_.i2c_address, DEC));
+  SaveConfig();
+}
+
 float SignalGeneratorClass::vout_pk_pk() {
   uint16_t min_v = 1024;
   uint16_t max_v = 0;
@@ -360,6 +396,9 @@ float SignalGeneratorClass::vout_pk_pk() {
       max_v = v;
     }
   }
-  return (float)(max_v-min_v) * (5.0/1024.0);
+  float vout = (float)(max_v-min_v) * (5.0/1024.0);
+  Serial.print(P("vout_pk_pk()="));
+  Serial.println(vout);
+  return vout;
 }
 
