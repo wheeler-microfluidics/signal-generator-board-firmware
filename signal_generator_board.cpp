@@ -378,8 +378,18 @@ uint8_t SignalGeneratorClass::set_waveform_voltage(float vrms) {
   Serial.println(waveform_voltage_);
   uint16_t index = round(vrms/config_settings_.max_voltage_rms*1023);
   Serial.println(P("index=") + String(index));
-  set_pot(4, pgm_read_byte_near(R4_INDEX + index));
-  set_pot(5, pgm_read_byte_near(R5_INDEX + index));
+  // only set pots if they have changed
+  if(pot_[4] != pgm_read_byte_near(R4_INDEX + index) ||
+     pot_[5] != pgm_read_byte_near(R5_INDEX + index)) {
+    // if pot 4 is increasing, set pot 5 first
+    if(pot_[4] < pgm_read_byte_near(R4_INDEX + index)) {
+      set_pot(5, pgm_read_byte_near(R5_INDEX + index));
+      set_pot(4, pgm_read_byte_near(R4_INDEX + index));
+    } else {
+      set_pot(4, pgm_read_byte_near(R4_INDEX + index));
+      set_pot(5, pgm_read_byte_near(R5_INDEX + index));
+    }
+  }
   return RETURN_OK;
 }
 
@@ -424,7 +434,6 @@ void SignalGeneratorClass::set_waveform_frequency(float freq) {
   float gain = 1/sqrt(pow(1-pow(2*PI*freq/FSF, 2)*R1*R2*C1*C2, 2) + pow(2*PI*freq*C2/FSF*(R1+R2), 2));
   Serial.print("gain=");
   Serial.println(gain);
-  
   set_pot(0, round(128/gain*amplitude_correction));
 }
 
