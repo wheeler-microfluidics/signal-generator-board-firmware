@@ -4,7 +4,7 @@
 #include <math.h>
 #include <SPI.h>
 #include <Wire.h>
-#include <Memory.h>
+#include "Memory.h"
 
 #define P(str) (strcpy_P(SignalGeneratorBoard.p_buffer, PSTR(str)), SignalGeneratorBoard.p_buffer)
 
