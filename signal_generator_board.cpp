@@ -135,7 +135,20 @@ void SignalGeneratorClass::ProcessSerialInput() {
     substr = strstr(buffer_, P("set_i2c_address("));
     if(substr && substr==buffer_ && substr[strlen(substr)-1] == ')') {
       buffer_[strlen(substr)-1]=0;
-      set_i2c_address(atoi(substr+sizeof(P("set_i2c_address("))-1));
+      set_i2c_address(atoi(substr+sizeof("set_i2c_address(")-1));
+      return;
+    }
+
+    if(strcmp(buffer_, P("hf_amplitude_correction()"))==0) {
+      Serial.print(P("hf_amplitude_correction="));
+      Serial.println(config_settings_.hf_amplitude_correction);
+     return;
+    }
+
+    substr = strstr(buffer_, P("set_hf_amplitude_correction("));
+    if(substr && substr==buffer_ && substr[strlen(substr)-1] == ')') {
+      buffer_[strlen(substr)-1]=0;
+      set_hf_amplitude_correction(atof(substr+sizeof("set_hf_amplitude_correction(")-1));
       return;
     }
 
@@ -435,6 +448,15 @@ void SignalGeneratorClass::set_waveform_frequency(float freq) {
   Serial.print("gain=");
   Serial.println(gain);
   set_pot(0, round(128/gain*amplitude_correction));
+}
+
+void SignalGeneratorClass::set_hf_amplitude_correction(float correction) {
+  config_settings_.hf_amplitude_correction = correction;
+  Serial.print(P("hf_amplitude_correction="));
+  Serial.println(config_settings_.hf_amplitude_correction);
+  SaveConfig();
+  // reset the frequency to update amplitude based on the new correction factor
+  set_waveform_frequency(waveform_frequency_);
 }
 
 void SignalGeneratorClass::set_i2c_address(uint8_t address) {

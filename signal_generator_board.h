@@ -78,6 +78,7 @@ public:
   void set_waveform_frequency(float freq);
   uint8_t set_waveform_voltage(float vrms);
   void set_i2c_address(uint8_t address);
+  void set_hf_amplitude_correction(float correction);
   float vout_pk_pk();
   version_t ConfigVersion();
   void ProcessWireCommand();
