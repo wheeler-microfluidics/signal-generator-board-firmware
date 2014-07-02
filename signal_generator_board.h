@@ -15,7 +15,7 @@ public:
     uint16_t minor;
     uint16_t micro;
   };
-  
+
   struct config_settings_t {
     version_t version;
     uint8_t i2c_address;
@@ -23,7 +23,7 @@ public:
     float hf_amplitude_correction;
     float max_voltage_rms;
   };
-  
+
   static const uint8_t CMD_GET_WAVEFORM_VOLTAGE =           0xA7;
   static const uint8_t CMD_SET_WAVEFORM_VOLTAGE =           0xA8;
   static const uint8_t CMD_GET_WAVEFORM_FREQUENCY =         0xA9;
@@ -31,7 +31,7 @@ public:
   static const uint8_t CMD_GET_POT_VALUE =                  0xB7;
   static const uint8_t CMD_SET_POT_VALUE =                  0xB8;
   static const uint8_t CMD_MEASURE_VOUT_PK_PK =             0xB9;
-  
+
   // reserved return codes
   static const uint8_t RETURN_OK =                    0x00;
   static const uint8_t RETURN_GENERAL_ERROR =         0x01;
@@ -43,9 +43,9 @@ public:
   static const uint8_t RETURN_BAD_CRC =               0x07;
   static const uint8_t RETURN_BAD_VALUE =             0x08;
   static const uint8_t RETURN_MAX_PAYLOAD_EXCEEDED =  0x09;
-  
-  static const uint16_t MAX_PAYLOAD_LENGTH = 100;  
-  static const uint32_t BAUD_RATE = 115200;  
+
+  static const uint16_t MAX_PAYLOAD_LENGTH = 100;
+  static const uint32_t BAUD_RATE = 115200;
   static const int LTC6903_SS_PIN = 2;
   static const int AD5206_SS_PIN = 3;
   static const int FREQ_RANGE_PIN = 4;
@@ -55,11 +55,11 @@ public:
   static const float C1 = 47e-9;
   static const float C2 = 6.8e-9;
   static const float LOG_F_STEP;
-  static prog_uchar R1_INDEX[] PROGMEM;
-  static prog_uchar R2_INDEX[] PROGMEM;
-  static prog_uchar R4_INDEX[] PROGMEM;
-  static prog_uchar R5_INDEX[] PROGMEM;
-  
+  static const char R1_INDEX[] PROGMEM;
+  static const char R2_INDEX[] PROGMEM;
+  static const char R4_INDEX[] PROGMEM;
+  static const char R5_INDEX[] PROGMEM;
+
   static const uint16_t EEPROM_CONFIG_SETTINGS = 0;
 
   void begin();
@@ -71,7 +71,7 @@ public:
   const char* protocol_name() { return prog_string(PROTOCOL_NAME_); }
   const char* protocol_version() { return prog_string(PROTOCOL_VERSION_); }
   const char* manufacturer() { return prog_string(MANUFACTURER_); }
-  const char* prog_string(prog_char* str) { strcpy_P(buffer_, str); return buffer_; }
+  const char* prog_string(const char* str) { strcpy_P(buffer_, str); return buffer_; }
 
   void Listen();
   void set_pot(byte address, byte level, boolean save_to_eeprom=false, boolean display_msg=true);
@@ -82,7 +82,7 @@ public:
   float vout_pk_pk();
   version_t ConfigVersion();
   void ProcessWireCommand();
-  
+
   boolean send_payload_length_;
   uint8_t cmd_;
   uint16_t bytes_read_; // bytes that have been read (by Read methods)
@@ -100,7 +100,7 @@ private:
   int16_t ReadInt16();
   uint8_t ReadUint8();
   int8_t ReadInt8();
-  float ReadFloat();  
+  float ReadFloat();
 
   String VersionString(version_t version);
   boolean NextInt(char* &str, int32_t &value);
@@ -110,13 +110,13 @@ private:
   void LoadConfig(bool use_defaults=false);
   void SaveConfig();
 
-  static prog_char SOFTWARE_VERSION_[] PROGMEM;
-  static prog_char NAME_[] PROGMEM;
-  static prog_char HARDWARE_VERSION_[] PROGMEM;
-  static prog_char MANUFACTURER_[] PROGMEM;
-  static prog_char URL_[] PROGMEM;
-  static prog_char PROTOCOL_NAME_[] PROGMEM;
-  static prog_char PROTOCOL_VERSION_[] PROGMEM;
+  static const char SOFTWARE_VERSION_[] PROGMEM;
+  static const char NAME_[] PROGMEM;
+  static const char HARDWARE_VERSION_[] PROGMEM;
+  static const char MANUFACTURER_[] PROGMEM;
+  static const char URL_[] PROGMEM;
+  static const char PROTOCOL_NAME_[] PROGMEM;
+  static const char PROTOCOL_VERSION_[] PROGMEM;
   config_settings_t config_settings_;
   float waveform_frequency_;
   float waveform_voltage_;
