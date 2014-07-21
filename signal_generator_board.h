@@ -4,10 +4,6 @@
 #include "Arduino.h"
 #include <stdint.h>
 
-// Arduino digital pin 11 (MOSI) to LTC6903 pin 2
-// Arduino digital pin 13 (SCK) to LTC6903 pin 3
-// Arduino digital pin 2 to LTC6903 pin 4
-
 class SignalGeneratorClass {
 public:
   struct version_t {
@@ -49,6 +45,9 @@ public:
   static const int LTC6903_SS_PIN = 2;
   static const int AD5206_SS_PIN = 3;
   static const int FREQ_RANGE_PIN = 4;
+  static const int S_SCK_PIN = 5;
+  static const int S_MOSI_PIN = 6;
+
   static const float F_MIN = 100.0;
   static const float F_MAX = 10e3;
   static const float R_MAX = 100e3;
