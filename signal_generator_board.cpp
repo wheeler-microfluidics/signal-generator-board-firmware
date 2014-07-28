@@ -357,8 +357,8 @@ void SignalGeneratorClass::SaveConfig() {
 void SignalGeneratorClass::set_pot(byte index, byte value, boolean save_to_eeprom, boolean display_msg) {
   // take the SS pin low to select the chip:
   digitalWrite(AD5206_SS_PIN, LOW);
-  shiftOut(S_MOSI_PIN, S_SCK_PIN, MSBFIRST, index);
-  shiftOut(S_MOSI_PIN, S_SCK_PIN, MSBFIRST, value);
+  shiftOutFast(S_MOSI_PIN, S_SCK_PIN, MSBFIRST, index);
+  shiftOutFast(S_MOSI_PIN, S_SCK_PIN, MSBFIRST, value);
   // take the SS pin high to de-select the chip:
   digitalWrite(AD5206_SS_PIN, HIGH);
   pot_[index] = value;
@@ -420,8 +420,8 @@ void SignalGeneratorClass::set_waveform_frequency(float freq) {
   uint8_t lsb = (dac << 2) | cnf;
 
   digitalWrite(LTC6903_SS_PIN, LOW);
-  shiftOut(S_MOSI_PIN, S_SCK_PIN, MSBFIRST, msb);
-  shiftOut(S_MOSI_PIN, S_SCK_PIN, MSBFIRST, lsb);
+  shiftOutFast(S_MOSI_PIN, S_SCK_PIN, MSBFIRST, msb);
+  shiftOutFast(S_MOSI_PIN, S_SCK_PIN, MSBFIRST, lsb);
   digitalWrite(LTC6903_SS_PIN, HIGH);
 
   float FSF;
