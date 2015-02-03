@@ -215,10 +215,10 @@ void SignalGeneratorClass::load_config(bool use_defaults) {
     config_settings_.pot[0] = 128;
     config_settings_.pot[1] = 128;
     config_settings_.pot[2] = 128;
-    config_settings_.pot[3] = 128;
+    config_settings_.pot[3] = 160;
     config_settings_.pot[4] = 0;
     config_settings_.pot[5] = 0;
-    config_settings_.hf_amplitude_correction = 1.19;
+    config_settings_.hf_amplitude_correction = 1.3;
     config_settings_.max_voltage_rms = 7;
     save_config();
   }
