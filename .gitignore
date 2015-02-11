@@ -1,1 +1,11 @@
+RELEASE-VERSION
+dist/
+setup.py
 Config.h
+.sconsign.dblite
+build/
+*.pyc
+*.o
+*/firmware
+*.egg-info
+paver-minilib.zip
