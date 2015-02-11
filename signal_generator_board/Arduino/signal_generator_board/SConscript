@@ -7,6 +7,7 @@ import signal_generator_board
 
 
 Import('SOFTWARE_VERSION')
+Import('HARDWARE_MINOR_VERSION')
 Import('sketch_build_root')
 
 context = ArduinoBuildContext(ARGUMENTS, build_root=sketch_build_root)
@@ -15,6 +16,8 @@ arduino_hex = context.build(extra_sources=signal_generator_board.get_sources(),
                             env_dict={'CPPPATH':
                                       signal_generator_board.get_includes(),
                                       'CPPDEFINES': {'___SOFTWARE_VERSION___':
-                                      '\\"%s\\"' % SOFTWARE_VERSION}})
+                                      '\\"%s\\"' % SOFTWARE_VERSION,
+                                      '___HARDWARE_MINOR_VERSION___':
+                                          HARDWARE_MINOR_VERSION}})
 
 Export('arduino_hex')

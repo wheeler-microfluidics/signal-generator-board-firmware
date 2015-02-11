@@ -1,7 +1,7 @@
 #ifndef _SIGNAL_GENERATOR_BOARD_H_
 #define _SIGNAL_GENERATOR_BOARD_H_
 
-#include "BaseNode.h"
+#include <BaseNode.h>
 #include "Config.h"
 
 #if ___HARDWARE_MINOR_VERSION___ > 1
