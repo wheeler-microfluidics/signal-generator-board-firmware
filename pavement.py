@@ -14,12 +14,6 @@ import version
 # firmware sketch source files.
 sys.path.append(path('.').abspath())
 
-signal_generator_board_files = find_package_data(
-    package='signal_generator_board',
-    where='signal_generator_board',
-    only_in_packages=False)
-pprint(signal_generator_board_files)
-
 setup(name='wheeler.signal-generator-board',
       version=version.getVersion(),
       description='Arduino-based signal generator board firmware and '
@@ -29,7 +23,6 @@ setup(name='wheeler.signal-generator-board',
       url='http://microfluidics.utoronto.ca/git/firmware___signal_generator_board.git',
       license='GPLv2',
       packages=['signal_generator_board'],
-      package_data=signal_generator_board_files,
       install_requires=['wheeler.base-node>=0.3'])
 
 
