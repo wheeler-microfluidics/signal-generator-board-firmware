@@ -17,10 +17,10 @@ sys.path.append(path('.').abspath())
 setup(name='wheeler.signal-generator-board',
       version=version.getVersion(),
       description='Arduino-based signal generator board firmware and '
-      'Python API.',
+                  'Python API.',
       author='Ryan Fobel',
       author_email='ryan@fobel.net',
-      url='http://microfluidics.utoronto.ca/git/firmware___signal_generator_board.git',
+      url='https://github.com/wheeler-microfluidics/signal-generator-board-firmware',
       license='GPLv2',
       packages=['signal_generator_board'],
       install_requires=['wheeler.base-node>=0.3'])
