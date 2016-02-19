@@ -103,6 +103,7 @@ public:
   uint8_t set_waveform_voltage(float vrms);
   void set_i2c_address(uint8_t address);
   void set_hf_amplitude_correction(float correction);
+  void set_max_voltage_rms(float max_voltage_rms);
   float vout_pk_pk();
 
 protected:

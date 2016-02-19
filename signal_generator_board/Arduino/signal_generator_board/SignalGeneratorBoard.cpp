@@ -87,6 +87,14 @@ bool SignalGeneratorClass::process_serial_input() {
     }
   }
 
+  if (match_function(P("set_max_voltage_rms("))) {
+    float value;
+    if (read_float(value)) {
+      set_max_voltage_rms(value);
+      return true;
+    }
+  }
+  
   if (match_function(P("set_pot("))) {
     int32_t index;
     int32_t value;
@@ -345,6 +353,15 @@ void SignalGeneratorClass::set_hf_amplitude_correction(float correction) {
   save_config();
   // reset the frequency to update amplitude based on the new correction factor
   set_waveform_frequency(waveform_frequency_);
+}
+
+void SignalGeneratorClass::set_max_voltage_rms(float max_voltage_rms) {
+  config_settings_.max_voltage_rms = max_voltage_rms;
+  Serial.print(P("max_voltage_rms="));
+  Serial.println(config_settings_.max_voltage_rms);
+  save_config();
+  // reset the frequency to update amplitude based on the new correction factor
+  set_waveform_voltage(waveform_voltage_);
 }
 
 float SignalGeneratorClass::vout_pk_pk() {
