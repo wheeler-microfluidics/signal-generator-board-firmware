@@ -7,6 +7,11 @@
 
 SignalGeneratorClass SignalGeneratorBoard;
 
+const float SignalGeneratorClass::F_MIN = 100.0;
+const float SignalGeneratorClass::F_MAX = 10e3;
+const float SignalGeneratorClass::R_MAX = 100e3;
+const float SignalGeneratorClass::C1 = 47e-9;
+const float SignalGeneratorClass::C2 = 6.8e-9;
 const float SignalGeneratorClass::LOG_F_STEP = (log10(SignalGeneratorClass::F_MAX)-log10(SignalGeneratorClass::F_MIN))/255;
 
 const char BaseNode::PROTOCOL_NAME_[] PROGMEM = "Extension module protocol";

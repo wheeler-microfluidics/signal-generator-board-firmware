@@ -83,11 +83,11 @@ public:
   static const int S_SCK_PIN = 5;
   static const int S_MOSI_PIN = 6;
 #endif // SOFT_SPI
-  static const float F_MIN = 100.0;
-  static const float F_MAX = 10e3;
-  static const float R_MAX = 100e3;
-  static const float C1 = 47e-9;
-  static const float C2 = 6.8e-9;
+  static const float F_MIN;
+  static const float F_MAX;
+  static const float R_MAX;
+  static const float C1;
+  static const float C2;
   static const float LOG_F_STEP;
   static const char R1_INDEX[] PROGMEM;
   static const char R2_INDEX[] PROGMEM;
