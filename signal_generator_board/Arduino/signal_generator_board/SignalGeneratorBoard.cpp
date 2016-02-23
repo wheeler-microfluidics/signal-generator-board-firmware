@@ -101,7 +101,7 @@ bool SignalGeneratorClass::process_serial_input() {
     int32_t save_to_eeprom = false;
     if (read_int(index) && read_int(value)) {
       read_int(save_to_eeprom);
-      if (index>=0 && index<6 && value>=0 & value < 256) {
+      if (index>=0 && index<6 && value>=0 && value < 256) {
         set_pot((uint8_t)index, (uint8_t)value, (bool)save_to_eeprom);
         return true;
       }
@@ -130,6 +130,7 @@ bool SignalGeneratorClass::process_serial_input() {
   }
 
   error(1);
+  return false;
 }
 
 void SignalGeneratorClass::process_wire_command() {
